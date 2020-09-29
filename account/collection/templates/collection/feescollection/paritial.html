@@ -1,0 +1,10 @@
+{% for feegroup in feesgroups %}
+  <tr>
+    <td>{{ feegroup.id }}</td>
+    <td>{{ feegroup.amount }}</td>
+  </tr>
+{% empty %}
+  <tr>
+    <td colspan="7" class="text-center bg-warning">No Data</td>
+  </tr>
+{% endfor %}

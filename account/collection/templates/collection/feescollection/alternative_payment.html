@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Year</th>
+                <th>Paid Amount </th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for value in data %}
+                            <tr>
+                <td>{{ value.month }}</td>
+                <td>{{ value.year }}</td>
+                <td>{{ value.paid_amount__sum }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if perms.collection.view_feegroups %}
+    {% if perms.collection.add_feegroups  %}
+    <div class="fw fl mt40">
+        <a class="btn btn-secondary btn-sm pull-right" href="add_feegroups/">Add Fees Group</a>
+    </div>
+    {% endif %}
+<div class="fw fl mt40">
+    <table class="table table-bordered" id="income">
+        <thead>
+        <tr>
+            <th scope="col">Serial No</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+             {% if perms.collection.change_feegroups  %}
+            <th>Edit</th>
+            {% endif %}
+            {% if perms.collection.delete_feegroups  %}
+            <th>Delete</th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for feesgroup in feegroups %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td class="tcap">{{ feesgroup.name}}</td>
+            <td>{{ feesgroup.description}}</td>
+
+            {% if perms.collection.change_feegroups  %}
+            <td><a href="{% url 'collection:edit_feesgroup' feesgroup.id %}" class="btn btn-primary btn-sm">Edit</a></td>
+            {% endif %}
+            {% if perms.collection.delete_feegroups  %}
+            <td><a href="{% url 'collection:delete_feesgroups' feesgroup.id %}" class="btn btn-danger btn-sm">Delete</a></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endif %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#income').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
+} );
+</script>
+{% endblock %}

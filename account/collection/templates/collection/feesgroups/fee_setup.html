@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <h5 class="text-center">Fees Setup</h5>
+            <form action="add_feestypesetup" method="post" id="friend-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>{{ form.group.label }}</label>
+                    {{form.group}}
+                </div>
+                <div class="form-group">
+                    <label>{{ form.feetype.label }}</label>
+                    {{form.feetype}}
+                </div>
+                <div class="form-group">
+                    <label>{{ form.due_date.label }}</label>
+                    {{form.due_date}}
+                </div>
+                <div class="form-group">
+                    <label>{{ form.amount.label }}</label>
+                    {{form.amount}}
+                </div>
+                <div class="form-group">
+                    <label>Fine Type </label><br>
+                    <label class="radio-inline"><input type="radio" id="btn1" name="optradio" value="none" checked> None
+                    </label>
+                    <label class="radio-inline"><input type="radio" id="btn3" name="optradio" value="fixed"> Fixed
+                    </label>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="fine_amount" placeholder="input fine amount" class="form-control">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-info" type="submit">Submit</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-8">
+            <table class="table" id="book-table">
+                <thead>
+                <tr>
+                    <th>Fee Group</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+               {% regroup data by group as fee_gr %}
+                {% for key in fee_gr %}
+                <tr>
+                    <td class="mailbox-name">
+                        <a href="#" data-toggle="popover" class="detail_popover">{{ key.grouper }}</a>
+                    </td>
+
+                    <td class="mailbox-name">
+                        <ul class="liststyle1" style="list-style-type:none;">
+                            {% for value in key.list %}
+                           <li> {{ value.feetype}} - {{ value.amount}}&nbsp;&nbsp;
+                               <a href="edit_feesetup/{{value.id}}" data-toggle="tooltip" title="Edit"><i class="fa fa-pencil"></i>
+                               </a>&nbsp;
+                               <a href="delete_feesetup/{{value.id}}" data-toggle="tooltip" title="Delete" onclick="return confirm('Delete Confirm?');"><i class="fa fa-remove"></i>
+                                </a>
+                           </li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td><a href="assign_feesetup_student/{{ key.grouper.id }}" class="btn btn-info"><i class="fa fa-tag"></i></a></td>
+
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+
+    $("#friend-form").submit(function (e) {
+        e.preventDefault();
+        var serializedData = $(this).serialize();
+
+        $.ajax({
+            type: 'POST',
+            url: "add_feestypesetup",
+            data: serializedData,
+            success: function (response) {
+                $("#friend-form").trigger('reset');
+                alert('Data has been saved.');
+            },
+            error: function (response) {
+                console.log(response["responseJSON"]["error"]);
+            }
+        })
+    })
+
+    </script>
+{% endblock content %}

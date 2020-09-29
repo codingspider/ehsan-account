@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col-sm-12">
+
+    <form method="POST" action="/collection/feegroup_search_student/" id="fees_collection_form" data-section-url="/collection/ajax_load_section/" data-student-url="/collection/load_student/">
+       {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                	<div class="col-md-6">
+						<input type="hidden" name="pk" value="{{pk}}">
+	                	<div class="input-group mb-3">
+						  <div class="input-group-prepend">
+						    <label class="input-group-text" for="">Class</label>
+						 </div>
+						  <select class="custom-select" name="class_id" id="class_id">
+							  <option value="">Choose-------</option>
+						   {% for value in classes %}
+						    	<option value="{{ value.id }}">{{ value.name }}</option>
+						    {% endfor %}
+						  </select>
+						</div>
+	                </div>
+	                <div class="col-md-6">
+	                	<div class="input-group mb-3">
+						  <div class="input-group-prepend">
+						    <label class="input-group-text" for="">Section</label>
+						 </div>
+						  <select class="custom-select" name="section_id" id="id_section">
+
+						  </select>
+						</div>
+	                </div>
+                </div>
+            </div>
+
+            <div class="col-md-2 col-xs-12">
+                <div class="row">
+                    <div class="col-md-12 col-xs-12">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success col-md-12 col-xs-12 global_payment_search">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+    $("#class_id").change(function () {
+      var url = $("#fees_collection_form").attr("data-section-url");
+      var sectionId = $(this).val();
+      $.ajax({
+        url: url + sectionId,
+        data: {
+          'section': sectionId
+        },
+        success: function (data) {
+          $("#id_section").html(data);
+        }
+      });
+
+    });
+  </script>
+
+
+{% endblock content %}

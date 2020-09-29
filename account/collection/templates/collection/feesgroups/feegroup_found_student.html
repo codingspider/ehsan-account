@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col-sm-12">
+    <form method="POST" action="/collection/feegroup_search_student/" id="fees_collection_form" data-section-url="/collection/ajax_load_section/" data-student-url="/collection/load_student/">
+       {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                	<div class="col-md-6">
+						<input type="hidden" name="pk" value="{{pk}}">
+	                	<div class="input-group mb-3">
+						  <div class="input-group-prepend">
+						    <label class="input-group-text" for="">Class</label>
+						 </div>
+						  <select class="custom-select" name="class_id" id="class_id">
+							  <option value="">Choose-------</option>
+						   {% for value in classes %}
+						    	<option value="{{ value.id }}">{{ value.name }}</option>
+						    {% endfor %}
+						  </select>
+						</div>
+	                </div>
+	                <div class="col-md-6">
+	                	<div class="input-group mb-3">
+						  <div class="input-group-prepend">
+						    <label class="input-group-text" for="">Section</label>
+						 </div>
+						  <select class="custom-select" name="section_id" id="id_section">
+
+						  </select>
+						</div>
+	                </div>
+
+                </div>
+                    <button type="submit" class="btn btn-success pull-right">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+<br>
+<div class="row">
+    <div class="col-md-4">
+        <h6 class="text-center">Fees Group : {{group.name}}</h6>
+               <table class="table table-bordered" id="book-table">
+                <thead>
+                <tr>
+                    <th>Fee Type</th>
+                    <th>Fee Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                 {% for value in data %}
+                    <tr>
+                        <td>{{value.feetype}}</td>
+                        <td>{{value.amount}}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+    </div>
+ {% if perms.collection.add_studentfeesmaster %}
+<form action="" id="fee_assing_form" method="post">
+    {% csrf_token %}
+     <input type="hidden" value="" id="form_ed_id" class="dn">
+    <div class="col-md-11">
+        <table class="table table-bordered table-responsive" id="example">
+          <thead>
+            <tr>
+              <th></th>
+              <th scope="col">Serial </th>
+              <th scope="col">Student Name</th>
+              <th scope="col">Class </th>
+              <th scope="col">ID Number</th>
+              <th scope="col">Section</th>
+              <th scope="col">Session</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for student in students %}
+            <tr>
+              <td><input type="checkbox" name="student_id[]" value="{{ student.pk }}" id="checkbox"></td>
+              <td>{{ forloop.counter}}</td>
+              <td>{{ student.student_name }}</td>
+              <td>{{ student.student_class}}</td>
+              <td>{{ student.id_number }}</td>
+              <td>{{ student.section }}</td>
+              <td>{{ student.session }}</td>
+
+                <input type="hidden" name="classes_id" value="{{student.student_class.id}}">
+                <input type="hidden" name="section_id" value="{{student.section.id}}">
+                <input type="hidden" name="id" value="{{pk}}">
+                <input type="hidden" name="amount" value="{{totals}}">
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-info pull-left">Assign Fees Group</button>
+        </div>
+    </div>
+</form>
+    {% endif %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+    $("#class_id").change(function () {
+      var url = $("#fees_collection_form").attr("data-section-url");
+      var sectionId = $(this).val();
+      $.ajax({
+        url: url + sectionId,
+        data: {
+          'section': sectionId
+        },
+        success: function (data) {
+          $("#id_section").html(data);
+          console.log(data);
+        }
+      });
+
+    });
+  </script>
+
+<script>
+     $("#checkAll").click(function () {
+     $('input:checkbox').not(this).prop('checked', this.checked);
+ });
+</script>
+
+<script>
+    /// fees type
+$('#fee_assing_form').submit(function(e){
+        e.preventDefault();
+        $form = $(this);
+        var formData = new FormData(this);
+
+        var form_ed_id = $('#form_ed_id').attr('value');
+
+        if(form_ed_id.length <1){
+            var url = "{% url 'collection:assign_fees_student' %}";
+            var action = 'add';
+        }else{
+            var url = '/collection/edit_assign_fees_student/'+form_ed_id;
+            var action = 'edit';
+        }
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            success: function (data) {
+                if($.isEmptyObject(data.error)){
+                    if(action == 'add'){
+                        var user = data.user
+                        var re_url = "{% url 'collection:expenses' %}";
+                        alert('Data has been added.')
+                    }else{
+                        var re_url = "fees_setup";
+                        printSuccess(data,re_url);
+                    }
+
+                }else{
+                    if(data.custom_error){
+                        printErrorOnly(data.error);
+                    }else{
+                        printErrorMsg(data.error);
+                    }
+                }
+            },
+            complete:function(){
+               $('body, html').animate({scrollTop:$('form').offset().top}, 'fast');
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+
+        });
+    });
+/// fees type
+</script>
+<script>
+$(document).ready(function() {
+    $('#example').DataTable();
+} );
+</script>
+{% endblock content %}

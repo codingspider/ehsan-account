@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% if perms.collection.add_feegroups  %}
+        <div class="fw fl mt40">
+            <form action="" method="post" id="feegroup_form" novalidate>
+                <div class="alert alert-danger form_msg dn" ></div>
+                <input type="hidden" value="{{pk}}" id="form_ed_id" class="dn">
+                {% csrf_token %}
+                {{ err_msg }}
+                <div class="row">
+                    <div class="col-md-6 mb15">
+                        <label >{{ form.name.label }}</label>
+                        {{ form.name }}
+                    </div>
+
+                    <div class="col-md-6 mb15">
+                        <label >{{ form.description.label }}</label>
+                        {{ form.description }}
+                    </div>
+
+                </div>
+				<input type="submit" value="Save" >
+            </form>
+        </div>
+    {% endif %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    /// fee group
+$('#feegroup_form').submit(function(e){
+        e.preventDefault();
+        $form = $(this);
+        var formData = new FormData(this);
+
+        var form_ed_id = $('#form_ed_id').attr('value');
+
+        if(form_ed_id.length <1){
+            var url = "{% url 'collection:add_feegroups' %}";
+            var action = 'add';
+        }else{
+            var url = '/collection/edit_feesgroup/'+form_ed_id;
+            var action = 'edit';
+        }
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            success: function (data) {
+                if($.isEmptyObject(data.error)){
+                    if(action == 'add'){
+                        var user = data.user
+                        var re_url = "{% url 'collection:feesgroups' %}";
+                        printSuccess(data.success,re_url);
+                    }else{
+                        var re_url = "{% url 'collection:feesgroups' %}";
+                        printSuccess(data,re_url);
+                    }
+
+                }else{
+                    if(data.custom_error){
+                        printErrorOnly(data.error);
+                    }else{
+                        printErrorMsg(data.error);
+                    }
+                }
+            },
+            complete:function(){
+               $('body, html').animate({scrollTop:$('form').offset().top}, 'fast');
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+
+        });
+    });
+/// fee group
+</script>
+{% endblock %}
+
